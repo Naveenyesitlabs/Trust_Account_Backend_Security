@@ -200,10 +200,17 @@ const getReconcileEndingBalance = async (clientId, account_open_date, account_cl
 
 const getOutstandingsSum = async (adminId, account_open_date, account_close_date, type) => {
     try {
-        const column_name = type === 'deposit' ? 'deposit_amount' : 'disbursement_amount';
-
-        const query = `
-            SELECT SUM(mfa.${column_name}) AS total
+        const query = type === 'deposit'
+            ? `
+            SELECT SUM(mfa.deposit_amount) AS total
+            FROM manage_firm_accounting AS mfa
+            INNER JOIN client_trust_accounts AS cta ON cta.clientId = mfa.client_id
+            WHERE mfa.adminId = ?
+              AND mfa.is_outstanding = ? 
+              AND mfa.date between ? AND ?
+        `
+            : `
+            SELECT SUM(mfa.disbursement_amount) AS total
             FROM manage_firm_accounting AS mfa
             INNER JOIN client_trust_accounts AS cta ON cta.clientId = mfa.client_id
             WHERE mfa.adminId = ?

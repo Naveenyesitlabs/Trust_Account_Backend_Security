@@ -3,16 +3,13 @@ const { resolveRoleScopedField, toContainsLikeValue } = require('../../utils/sql
 
 
 const getBankDaitles = async ({ firm_name, userId, adminId, role }) => {
-
-    const idField = resolveRoleScopedField(role);
     const idValue = role == 'admin' ? adminId : userId
 
 
     try {
-        const query = `
-        SELECT * FROM client_trust_accounts WHERE firm_name = ? AND ${idField} = ?
-            ORDER BY firm_name DESC
-        `;
+        const query = role === 'admin'
+            ? `SELECT * FROM client_trust_accounts WHERE firm_name = ? AND adminId = ? ORDER BY firm_name DESC`
+            : `SELECT * FROM client_trust_accounts WHERE firm_name = ? AND userId = ? ORDER BY firm_name DESC`;
         const [rows] = await dbConn.query(query, [firm_name, idValue]);
         return rows[0];
     } catch (error) {

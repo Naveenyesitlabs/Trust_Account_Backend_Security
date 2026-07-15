@@ -1,21 +1,27 @@
 const dbConn = require("../../../dbConfig");
 const { getLastDatesOfByYears } = require("../../utils/balanceHelper");
 
-const table = "manage_firm_accounting";
-
 const getOutstandingDeposite = async ({ userId, adminId, role }) => {
-    const idField = role === 'admin' ? 'adminId' : 'userId';
     const idValue = role === 'admin' ? adminId : userId;
 
-    const query = `
+    const query = role === 'admin' ? `
      SELECT mfa.date, mfa.cheque_number, mfa.payee_name, mfa.client_id, mfa.client_name,
         mfa.deposit_amount
-     FROM ${table} AS mfa
+     FROM manage_firm_accounting AS mfa
      JOIN client_trust_accounts AS uc ON mfa.client_id = uc.clientId
      WHERE mfa.deposit_amount IS NOT NULL
        AND uc.account_name IS NOT NULL 
        AND mfa.client_name IS NOT NULL
-       AND mfa.${idField} = ?
+       AND mfa.adminId = ?
+    ` : `
+     SELECT mfa.date, mfa.cheque_number, mfa.payee_name, mfa.client_id, mfa.client_name,
+        mfa.deposit_amount
+     FROM manage_firm_accounting AS mfa
+     JOIN client_trust_accounts AS uc ON mfa.client_id = uc.clientId
+     WHERE mfa.deposit_amount IS NOT NULL
+       AND uc.account_name IS NOT NULL 
+       AND mfa.client_name IS NOT NULL
+       AND mfa.userId = ?
     `;
 
     return dbConn.query(query, [idValue]).then((result) => {
@@ -27,15 +33,23 @@ const getOutstandingDeposite = async ({ userId, adminId, role }) => {
 
 const getOutstandings = async (adminId, userId, type) => {
     try {
-        const column_name = type === 'deposit' ? 'deposit_amount' : 'disbursement_amount';
-        const query = `
-            SELECT mfa.id, mfa.date, mfa.cheque_number, mfa.payee_name, lc.client_name, mfa.${column_name}
-            FROM ${table} AS mfa
+        const query = type === 'deposit' ? `
+            SELECT mfa.id, mfa.date, mfa.cheque_number, mfa.payee_name, lc.client_name, mfa.deposit_amount
+            FROM manage_firm_accounting AS mfa
             INNER JOIN ledger_client AS lc ON lc.id = mfa.ledger_client_id
             WHERE (mfa.adminId = ? OR mfa.userId = ?) 
               AND mfa.is_bank_charge = ? 
               AND mfa.is_outstanding = ? 
-              AND mfa.${column_name} > ?
+              AND mfa.deposit_amount > ?
+            ORDER BY mfa.id DESC
+        ` : `
+            SELECT mfa.id, mfa.date, mfa.cheque_number, mfa.payee_name, lc.client_name, mfa.disbursement_amount
+            FROM manage_firm_accounting AS mfa
+            INNER JOIN ledger_client AS lc ON lc.id = mfa.ledger_client_id
+            WHERE (mfa.adminId = ? OR mfa.userId = ?) 
+              AND mfa.is_bank_charge = ? 
+              AND mfa.is_outstanding = ? 
+              AND mfa.disbursement_amount > ?
             ORDER BY mfa.id DESC
         `;
 

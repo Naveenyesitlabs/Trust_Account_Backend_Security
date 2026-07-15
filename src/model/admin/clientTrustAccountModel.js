@@ -3,12 +3,10 @@ const { resolveRoleScopedField } = require('../../utils/sqlSafety');
 
 
 const isTheAdminData = async (adminId, userId, clientId, role) => {
-    const idField = resolveRoleScopedField(role);
     const idValue = role === 'admin' ? adminId : userId;
-    const query = `
-    SELECT * FROM client_trust_accounts
-    WHERE ${idField} = ? AND clientId = ?;
-`;
+    const query = role === 'admin'
+        ? 'SELECT * FROM client_trust_accounts WHERE adminId = ? AND clientId = ?;'
+        : 'SELECT * FROM client_trust_accounts WHERE userId = ? AND clientId = ?;';
 
     const [rows] = await dbConn.query(query, [idValue, clientId]);
     return rows.length > 0;

@@ -16,9 +16,8 @@ const getLedgersClient = async (adminId, userId) => {
 const getAllLedgersClientDaitles = async (searchData) => {
     const { client_name, month, year, case_summary, userId, adminId, role } = searchData;
     try {
-        const idField = resolveRoleScopedField(role);
         const idValue = role === 'admin' ? adminId : userId;
-        let query = `
+        let query = role === 'admin' ? `
             SELECT 
                 MFA.id,
                 CTA.clientId,
@@ -27,7 +26,17 @@ const getAllLedgersClientDaitles = async (searchData) => {
             FROM client_trust_accounts AS CTA
             JOIN manage_firm_accounting AS MFA ON CTA.clientId = MFA.client_id
             JOIN use_clients AS uc ON CTA.clientId = uc.id
-            WHERE CTA.${idField} = ?
+            WHERE CTA.adminId = ?
+        ` : `
+            SELECT 
+                MFA.id,
+                CTA.clientId,
+                MFA.client_name,
+                MFA.running_balance
+            FROM client_trust_accounts AS CTA
+            JOIN manage_firm_accounting AS MFA ON CTA.clientId = MFA.client_id
+            JOIN use_clients AS uc ON CTA.clientId = uc.id
+            WHERE CTA.userId = ?
         `;
         const values = [idValue];
         if (client_name) {

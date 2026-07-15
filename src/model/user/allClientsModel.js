@@ -1,12 +1,9 @@
 const dbConn = require('../../../dbConfig');
 
-const table = 'ledger_client';
-
-
 const insertLedgerClient = async (clientData) => {
     try {
         // building the query
-        let query = `INSERT INTO ${table} SET ?`;
+        const query = 'INSERT INTO ledger_client SET ?';
 
         // executing the query
         const [result] = await dbConn.query(query, clientData); // Destructure result

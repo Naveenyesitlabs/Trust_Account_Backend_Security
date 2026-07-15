@@ -1,8 +1,5 @@
 const dbConn = require("../../../dbConfig");
 
-const table = "client_matter";
-
-
 /**
  * Create new matter
  * @param {*} matterData 
@@ -10,7 +7,7 @@ const table = "client_matter";
  */
 const addMatter = async (matterData) => {
     try {
-        const [rows] = await dbConn.query(`INSERT INTO ${table} SET ?`, [matterData]);
+        const [rows] = await dbConn.query('INSERT INTO client_matter SET ?', [matterData]);
         if (rows.affectedRows <= 0) return false;
 
         return { id: rows.insertId };
@@ -22,7 +19,7 @@ const addMatter = async (matterData) => {
 
 const getMatterByClientId = async (ledger_client_id) => {
     try {
-        const [rows] = await dbConn.query(`SELECT id, matter FROM ${table} WHERE ledger_client_id = ?`, [ledger_client_id]);
+        const [rows] = await dbConn.query('SELECT id, matter FROM client_matter WHERE ledger_client_id = ?', [ledger_client_id]);
         return rows;
     } catch (error) {
         throw new Error("Database error at getMatterByClientId: " + error.message);
@@ -53,7 +50,7 @@ const getMatters = async (adminId) => {
 
 const updateMatterNote = async (matterId, notes) => {
     try {
-        let query = `UPDATE ${table} SET notes = ? WHERE id = ?`;
+        let query = 'UPDATE client_matter SET notes = ? WHERE id = ?';
         const values = [notes, matterId];
         const [rows] = await dbConn.query(query, values);
         return rows.affectedRows > 0
@@ -65,7 +62,7 @@ const updateMatterNote = async (matterId, notes) => {
 
 const updateMatterResolveStatus = async (matterId, resolve_status) => {
     try {
-        let query = `UPDATE ${table} SET resolve_status = ? WHERE id = ?`;
+        let query = 'UPDATE client_matter SET resolve_status = ? WHERE id = ?';
         const values = [resolve_status, matterId];
         const [rows] = await dbConn.query(query, values);
         return rows.affectedRows > 0
@@ -76,7 +73,7 @@ const updateMatterResolveStatus = async (matterId, resolve_status) => {
 
 const updateMatter = async (matterId, matterData) => {
     try {
-        let query = `UPDATE ${table} SET ? WHERE id = ?`;
+        let query = 'UPDATE client_matter SET ? WHERE id = ?';
         const values = [matterData, matterId];
         const [rows] = await dbConn.query(query, values);
         return rows.affectedRows > 0

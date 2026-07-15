@@ -10,9 +10,10 @@ const checkUserByEmail = async (email) => {
 };
 
 const checkIfAdmin = async (adminId, userId, role, id) => {
-    const idField = resolveRoleScopedField(role);
     const idValue = role === 'admin' ? adminId : userId;
-    const query = `SELECT * FROM manage_firm_accounting WHERE id = ? AND ${idField} = ?`;
+    const query = role === 'admin'
+        ? 'SELECT * FROM manage_firm_accounting WHERE id = ? AND adminId = ?'
+        : 'SELECT * FROM manage_firm_accounting WHERE id = ? AND userId = ?';
     const [rows] = await dbConn.query(query, [id, idValue]);
     return rows.length > 0;
 }

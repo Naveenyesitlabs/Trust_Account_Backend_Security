@@ -1,13 +1,11 @@
 const dbConn = require('../../../dbConfig');
 
-const table = 'client_ledger';
-
 /**
  * To get total count of the table
  */
 const getLedgersCount = async () => {
     try {
-        let query = `SELECT COUNT(id) AS count FROM ${table}`;
+        let query = 'SELECT COUNT(id) AS count FROM client_ledger';
 
         // destructure rows from query result
         const [rows] = await dbConn.query(query);
@@ -55,7 +53,7 @@ const fetchLedgers = async ({ page, limit, startDate, endDate, client_id }) => {
         // Base SQL query to fetch ledger entries
         let baseQuery = `
             SELECT id, transaction_date, payor_payee, transaction_method, check_number, purpose, deposit, disbursement, running_balance, notes, is_reconcile_to_journal
-            FROM ${table} 
+            FROM client_ledger 
             ${whereClause}
             ORDER BY transaction_date ASC
         `;
@@ -100,7 +98,7 @@ const insertLedger = async (saveData) => {
     try {
         // building query
         const query = `
-            INSERT INTO ${table}
+            INSERT INTO client_ledger
             (client_id, transaction_date, payor_payee, transaction_method, check_number, 
             purpose, deposit, disbursement, running_balance, notes, is_reconcile_to_journal)
             VALUES (?,?,?,?,?,?,?,?,?,?,?)
@@ -143,7 +141,7 @@ const getLedgerBalance = async (client_id, month = null) => {
     try {
         // building query
         let query = `
-            SELECT running_balance FROM ${table} WHERE client_id = ?
+            SELECT running_balance FROM client_ledger WHERE client_id = ?
         `;
 
         // gathering values

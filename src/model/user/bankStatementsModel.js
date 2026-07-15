@@ -1,11 +1,8 @@
 const dbConn = require('../../../dbConfig');
 
-const table = 'bank_statements';
-
-
 const insertBankStatements = async (bankStatementsData) => {
     try {
-        const query = `INSERT INTO ${table} SET ?`;
+        const query = 'INSERT INTO bank_statements SET ?';
         const [rows] = await dbConn.query(query, [bankStatementsData]);
         return rows.insertId;
     } catch (error) {

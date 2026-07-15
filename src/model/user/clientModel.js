@@ -1,9 +1,5 @@
 const dbConn = require('../../../dbConfig');
-const { resolveRoleScopedField, toContainsLikeValue } = require('../../utils/sqlSafety');
-
-
-// const table = 'client_trust_accounts';
-const table = 'use_clients';
+const { toContainsLikeValue } = require('../../utils/sqlSafety');
 
 
 /**
@@ -14,7 +10,7 @@ const table = 'use_clients';
 const createClient = async (clientData) => {
     try {
         const query = `
-            INSERT INTO ${table} (account_name, fee_type,case_summary,account_open_date, userId)
+            INSERT INTO use_clients (account_name, fee_type,case_summary,account_open_date, userId)
             VALUES (?, ?, ?,?,?)
             `;
 
@@ -31,19 +27,28 @@ const createClient = async (clientData) => {
 
 const getAllClientsUserDB = async (adminId, userId, role) => {
     try {
-        const idField = resolveRoleScopedField(role);
         const idValue = role === 'admin' ? adminId : userId;
 
-        const query = `
+        const query = role === 'admin' ? `
             SELECT cta.account_name COLLATE utf8mb4_general_ci AS client_name
             FROM client_trust_accounts AS cta
-            WHERE cta.${idField} = ?
+            WHERE cta.adminId = ?
 
             UNION
 
             SELECT uc.account_name COLLATE utf8mb4_general_ci AS client_name
             FROM use_clients AS uc
-            WHERE uc.${idField} = ?
+            WHERE uc.adminId = ?
+        ` : `
+            SELECT cta.account_name COLLATE utf8mb4_general_ci AS client_name
+            FROM client_trust_accounts AS cta
+            WHERE cta.userId = ?
+
+            UNION
+
+            SELECT uc.account_name COLLATE utf8mb4_general_ci AS client_name
+            FROM use_clients AS uc
+            WHERE uc.userId = ?
         `;
 
         const [rows] = await dbConn.query(query, [idValue, idValue]);
@@ -57,74 +62,31 @@ const getAllClientsUserDB = async (adminId, userId, role) => {
 
 
 const fetchClients = async ({
-    columns = ['*'],
     filters = [],
-    orderBy,
-    orderDirection = 'ASC',
-    whereJoin = ' AND ',
-    page,
-    limit,
-    includeRowNumber = false,
-    joins = [],
 } = {}) => {
     try {
+        const accountNameFilter = filters.find(
+            (filter) =>
+                filter?.field === 'account_name' &&
+                filter?.operator?.toUpperCase() === 'LIKE' &&
+                filter?.value !== undefined &&
+                filter?.value !== null
+        );
+
+        let query = `
+            SELECT clientId as id, account_name as name
+            FROM use_clients
+        `;
         const values = [];
-        const conditions = [];
 
-        // Build WHERE conditions
-        for (const filter of filters) {
-            if (filter?.field && filter?.operator && filter?.value !== undefined && filter?.value !== null) {
-                conditions.push(`${filter.field} ${filter.operator} ?`);
-                values.push(filter.value);
-            }
+        if (accountNameFilter) {
+            query += ' WHERE account_name LIKE ?';
+            values.push(accountNameFilter.value);
         }
 
-        const whereClause = conditions.length > 0 ? `WHERE ${conditions.join(whereJoin)}` : '';
-        const selectedColumns = Array.isArray(columns) ? columns.join(', ') : '*';
-        const orderClause = orderBy ? `ORDER BY ${orderBy} ${orderDirection.toUpperCase() === 'ASC' ? 'ASC' : 'DESC'}` : '';
+        query += ' ORDER BY name ASC';
 
-        // Build JOIN clauses
-        const joinClauses = joins.map(join => {
-            const joinType = join.type?.toUpperCase() || 'INNER';
-            return `${joinType} JOIN ${join.table} ON ${join.on}`;
-        }).join(' ');
-
-        // Pagination handling
-        let offset = 0;
-        if (page && limit) {
-            offset = (page - 1) * limit;
-        }
-
-        let paginationClause = '';
-        if (limit !== undefined && limit !== null && page !== null) {
-            paginationClause = `LIMIT ?, ?`;
-            values.push(offset, limit);
-        }
-
-        const baseQuery = `
-            SELECT ${selectedColumns}
-            FROM ${table}
-            ${joinClauses}
-            ${whereClause}
-            ${orderClause}
-            ${paginationClause}
-        `.trim();
-
-        let finalQuery = baseQuery;
-
-        // Optional row number
-        if (includeRowNumber) {
-            finalQuery = `
-                SELECT (@row_number := @row_number + 1) AS row_number, data.*
-                FROM (
-                    ${baseQuery}
-                ) AS data, (SELECT @row_number := ?) AS rn_init
-            `;
-            values.unshift(offset);
-            await dbConn.query("SET @row_number := ?", [offset]);
-        }
-
-        const [rows] = await dbConn.query(finalQuery, values);
+        const [rows] = await dbConn.query(query, values);
         return rows;
 
     } catch (error) {
@@ -174,7 +136,7 @@ const getClientInfo = async ({
 const isClientExists = async (clientId) => {
     try {
         // bulding the query
-        const query = `SELECT COUNT(id) FROM ${table} WHERE id = ?`;
+        const query = 'SELECT COUNT(id) FROM use_clients WHERE id = ?';
         const [rows] = await dbConn.query(query, [clientId]);
         return rows.length > 0;
     } catch (error) {
@@ -189,7 +151,7 @@ const isClientExists = async (clientId) => {
 const getClientCount = async () => {
     try {
         // bulding the query
-        const query = `SELECT COUNT(clientId) AS count FROM ${table}`;
+        const query = 'SELECT COUNT(clientId) AS count FROM use_clients';
         const [rows] = await dbConn.query(query);
         return rows[0].count;
     } catch (error) {
@@ -256,7 +218,7 @@ const fetchAllClientsFromDB = async (search, start_date, end_date) => {
  */
 const modifyClient = async (client_id, clientData) => {
     try {
-        const [rows] = await dbConn.query(`UPDATE ${table} SET ? WHERE clientId = ?`, [clientData, client_id]);
+        const [rows] = await dbConn.query('UPDATE use_clients SET ? WHERE clientId = ?', [clientData, client_id]);
         return rows;
     } catch (error) {
         return false;

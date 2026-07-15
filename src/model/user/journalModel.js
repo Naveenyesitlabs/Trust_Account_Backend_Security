@@ -1,7 +1,5 @@
 const dbConn = require("../../../dbConfig");
 
-const table = 'client_journal';
-
 /**
  * Add new journal entry
  */
@@ -9,7 +7,7 @@ const saveJournalEntry = async (journalData) => {
     try {
         // building query
         const query = `
-            INSERT INTO ${table} 
+            INSERT INTO client_journal 
             (client_id, transaction_date, payor_payee, transaction_method, check_number,
             purpose, deposit, disbursement, running_balance, notes, is_reconcile_ledger, is_reconcile_bank)
             VALUES (?,?,?,?,?,?,?,?,?,?,?,?)
@@ -50,7 +48,7 @@ const saveJournalEntry = async (journalData) => {
 const getJournalBalance = async () => {
     try {
         // building query
-        let query = `SELECT running_balance FROM ${table} ORDER BY id DESC LIMIT 1`;
+        let query = 'SELECT running_balance FROM client_journal ORDER BY id DESC LIMIT 1';
 
         // doing db operation
         const [rows] = await dbConn.query(query);
@@ -80,7 +78,7 @@ const fetchAllJournal = async (bank_name, account_number, account_name) => {
         let query = `SELECT 
                             CJ.id, CJ.transaction_date, CJ.payor_payee, CJ.transaction_method, CJ.check_number,
                             CJ.purpose, CJ.deposit, CJ.disbursement, CJ.running_balance, CJ.notes, CJ.is_reconcile_ledger, CJ.is_reconcile_bank
-                    FROM ${table} AS CJ 
+                    FROM client_journal AS CJ 
                     INNER JOIN 
                         client_trust_accounts AS CTA ON CTA.clientId = CJ.client_id
                     WHERE 

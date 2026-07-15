@@ -1,8 +1,5 @@
 const dbConn = require('../../../dbConfig');
 
-// define table
-const table = 'client_trust_entry';
-
 /**
  * To insert trust documents
  * @param {*} clientId 
@@ -11,7 +8,7 @@ const table = 'client_trust_entry';
  */
 const insertTrustDocuments = async (data) => {
     try {
-        const query = `INSERT INTO ${table} SET ?`;
+        const query = 'INSERT INTO client_trust_entry SET ?';
 
         const [result] = await dbConn.query(query, data); // Destructure result
         if (result.affectedRows > 0) {
@@ -35,7 +32,7 @@ const insertTrustDocuments = async (data) => {
 const getRecentClientTrustEntryDocuments = async (adminId) => {
     try {
         // building query
-        let query = `SELECT * FROM ${table} WHERE adminId = ? ORDER BY date DESC`;
+        let query = 'SELECT * FROM client_trust_entry WHERE adminId = ? ORDER BY date DESC';
         const values = [adminId];
 
         // fetching data

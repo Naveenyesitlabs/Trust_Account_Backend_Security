@@ -3,3 +3,16 @@ reports/
 coverage/
 dist/
 build/
+src/uploads/
+src/downloads/
+src/utils/temp_images/
+eng.traineddata
+src/controller/user/bankStatementController@.js
+src/controller/user/bankStatementController@@.js
+src/jobs/cronJobs@.js
+src/model/admin/journalEntryModel@.js
+src/model/admin/journalEntryModelv2.0.js
+src/services/old_bankParser.js
+src/services/new_opencv_bankPasrser.js
+src/services/BankStatementParser_new.js
+src/services/BankStatementParserv2.0.js

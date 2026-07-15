@@ -64,42 +64,32 @@ const getAllUsersFromManagement = async (admin_id) => {
 
 const updateUserManagement = async (id, { name, email, phone, assign_role, role_id, designation }) => {
     try {
-        const updates = [];
-        const values = [];
+        const updates = {};
 
         if (name) {
-            updates.push('name = ?');
-            values.push(name);
+            updates.name = name;
         }
         if (email) {
-            updates.push('email = ?');
-            values.push(email);
+            updates.email = email;
         }
         if (phone) {
-            updates.push('phone = ?');
-            values.push(phone);
+            updates.phone = phone;
         }
         if (assign_role) {
-            updates.push('assign_role = ?');
-            values.push(assign_role);
+            updates.assign_role = assign_role;
         }
         if (role_id) {
-            updates.push('role_id = ?');
-            values.push(role_id);
+            updates.role_id = role_id;
         }
         if (designation) {
-            updates.push('designation = ?');
-            values.push(designation);
+            updates.designation = designation;
         }
 
-        if (updates.length === 0) {
+        if (Object.keys(updates).length === 0) {
             throw new Error('No fields to update');
         }
 
-        const query = `UPDATE user_management SET ${updates.join(', ')} WHERE id = ?`;
-        values.push(id); // add id for WHERE clause
-
-        const [result] = await dbConn.query(query, values);
+        const [result] = await dbConn.query('UPDATE user_management SET ? WHERE id = ?', [updates, id]);
         return result;
 
     } catch (err) {

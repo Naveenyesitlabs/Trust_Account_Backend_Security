@@ -235,20 +235,15 @@ const getClientReportsDB = async (adminId, month, year) => {
  */
 const getOutstandingReports = async (adminId, month, year, type) => {
   try {
-    const allowedColumns = {
-      deposit: 'deposit_amount',
-      disbursement: 'disbursement_amount',
-    };
-    const column_name = allowedColumns[type];
-    if (!column_name) {
+    if (!['deposit', 'disbursement'].includes(type)) {
       throw new Error('Invalid outstanding report type');
     }
-    let query = `select 
+    let query = type === 'deposit' ? `select 
                       mfa.date,
                       mfa.cheque_number as check_number,
                       mfa.payee_name as payer,
                       lc.client_name as related_to_client,
-                      mfa.${column_name} as amount
+                      mfa.deposit_amount as amount
                   from 
                       manage_firm_accounting as mfa 
                   inner join 
@@ -256,7 +251,25 @@ const getOutstandingReports = async (adminId, month, year, type) => {
                   where 
                       mfa.adminId= ? 
                       and mfa.is_bank_charge = ? 
-                      and mfa.${column_name} > 0 
+                      and mfa.deposit_amount > 0 
+                      and mfa.is_outstanding = ? 
+                      and MONTH(mfa.date) = ? 
+                      and YEAR(mfa.date) = ? 
+                  order by 
+                      mfa.id desc` : `select 
+                      mfa.date,
+                      mfa.cheque_number as check_number,
+                      mfa.payee_name as payer,
+                      lc.client_name as related_to_client,
+                      mfa.disbursement_amount as amount
+                  from 
+                      manage_firm_accounting as mfa 
+                  inner join 
+                      ledger_client as lc on lc.id=mfa.ledger_client_id 
+                  where 
+                      mfa.adminId= ? 
+                      and mfa.is_bank_charge = ? 
+                      and mfa.disbursement_amount > 0 
                       and mfa.is_outstanding = ? 
                       and MONTH(mfa.date) = ? 
                       and YEAR(mfa.date) = ? 
