@@ -1,0 +1,113 @@
+// const { spawn } = require('child_process');
+// const path = require('path');
+
+// function runScraper() {
+
+//   const scraperPath = path.join(
+//     __dirname,
+//     'wisefork-scraper-project',
+//     'run-scraper.js'
+//   );
+
+//   const scraper = spawn(
+//     'node',
+//     [scraperPath],
+//     {
+//       cwd: path.join(__dirname, 'wisefork-scraper-project')
+//     }
+//   );
+
+//   scraper.stdout.on('data', (data) => {
+//     console.log(`[SCRAPER]: ${data.toString()}`);
+//   });
+
+//   scraper.stderr.on('data', (data) => {
+//     console.error(`[SCRAPER ERROR]: ${data.toString()}`);
+//   });
+
+//   scraper.on('error', (err) => {
+//     console.error('Failed to start scraper:', err);
+//   });
+
+//   scraper.on('close', (code) => {
+//     console.log(`Scraper finished with code ${code}`);
+//   });
+
+//   return scraper;
+// }
+
+// module.exports = runScraper;
+
+
+const { spawn } = require('child_process');
+const path = require('path');
+const fs = require('fs');
+
+function runScraper() {
+  const scraperPath = path.join(
+    __dirname,
+    'wisefork-scraper-project',
+    'run-scraper.js'
+  );
+
+  // Read scraper's own .env directly
+  const envFilePath = path.join(__dirname, 'wisefork-scraper-project', '.env');
+  const envVars = {};
+
+  if (fs.existsSync(envFilePath)) {
+    console.log(`[SCRAPER] Loading .env from: ${envFilePath}`);
+    const lines = fs.readFileSync(envFilePath, 'utf-8').split('\n');
+    for (const line of lines) {
+      const trimmed = line.trim();
+      if (!trimmed || trimmed.startsWith('#')) continue;
+      const eqIndex = trimmed.indexOf('=');
+      if (eqIndex === -1) continue;
+      const key = trimmed.substring(0, eqIndex).trim();
+      const value = trimmed.substring(eqIndex + 1).trim().replace(/^["']|["']$/g, '');
+      envVars[key] = value;
+    }
+    console.log('[SCRAPER] Env keys loaded:', Object.keys(envVars).join(', '));
+  } else {
+    console.error(`[SCRAPER] ❌ .env not found at: ${envFilePath}`);
+  }
+
+  const scraper = spawn(
+    'node',
+    [scraperPath],
+    {
+      cwd: path.join(__dirname, 'wisefork-scraper-project'),
+      env: {
+        ...process.env,
+        ...envVars
+      }
+    }
+  );
+
+  scraper.stdout.on('data', (data) => {
+    data.toString().split('\n').forEach(line => {
+      if (line.trim()) console.log(`[SCRAPER] ${line}`);
+    });
+  });
+
+  scraper.stderr.on('data', (data) => {
+    data.toString().split('\n').forEach(line => {
+      if (line.trim()) console.error(`[SCRAPER ERROR] ${line}`);
+    });
+  });
+
+  scraper.on('error', (err) => {
+    console.error('[SCRAPER] Failed to start process:', err.message);
+  });
+
+  scraper.on('close', (code) => {
+    if (code === 0) {
+      console.log('[SCRAPER] ✅ Finished successfully');
+    } else {
+      console.error(`[SCRAPER] ❌ Exited with code ${code}`);
+    }
+  });
+
+  return scraper;
+}
+
+module.exports = runScraper;

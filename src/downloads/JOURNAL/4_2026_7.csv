@@ -1,0 +1,7 @@
+Serial No,Date,Payee Or Payor,Method,Check Number,Purpose,Deposit,Disbursement,Balance,Client,Notes,Reconciled To Ledger,Reconciled To Bank Statement
+1,2026-04-14,Law Firm,check,5546,Check payment,0.00,1000.00,17384.80,Example Client,,No,No
+2,2026-04-14,Law Firm,check,4324,test,1200.00,0.00,18384.80,Example Client,,No,No
+3,2026-04-14,Hogwart School,check,5546,Check payment,5000.00,0.00,17184.80,Example Client,,No,No
+4,2026-04-14,Rufus Law Firm,check,5546,test,2000.00,0.00,12184.80,Example Client,,No,No
+5,2026-04-14,World Security of JARVIS,check,6356,A,0.00,1000.00,10184.80,Arthur Weasley,,No,No
+6,2026-04-14,test,electronic_transfer,JSRVIS85485678VGV78,example,10000.00,0.00,10000.00,Example Client,,No,No

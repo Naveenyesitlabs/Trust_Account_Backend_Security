@@ -1,0 +1,22 @@
+Serial No,Date,Payee Or Payor,Method,Check Number,Purpose,Deposit,Disbursement,Balance,Client,Notes,Reconciled To Ledger,Reconciled To Bank Statement
+1,2025-06-22,William Jhonson,Electronic Transfer,6356,Trust Interest Transfer,0.00,587.40,-468711.62,William Jhonson,,Yes,Yes
+2,2025-06-09,William Jhonson,Electronic Transfer,,"2,208.83 Total Checks Paid",0.00,102262.85,-468124.22,William Jhonson,,No,Yes
+3,2025-06-08,William Jhonson,Electronic Transfer,,"5,814.00 1662 * A 01/29",0.00,5814.00,-365861.37,William Jhonson,,No,Yes
+4,2025-06-20,William Jhonson,Electronic Transfer,,Interest Payment,0.00,597.40,-360047.37,William Jhonson,,No,Yes
+5,2025-06-30,William Jhonson,Electronic Transfer,,Clio Payments Clio Payme St-H5O4J1D8E4P7 CCD ID: 1800948598,0.00,3000.00,-359449.97,William Jhonson,,No,Yes
+6,2025-06-13,William Jhonson,Electronic Transfer,,Remote Online Deposit 3,0.00,74571.60,-356449.97,William Jhonson,,No,Yes
+7,2025-06-01,William Jhonson,Electronic Transfer,,Remote Online Deposit 3,0.00,190000.00,-281878.37,William Jhonson,,No,Yes
+8,2025-06-28,William Jhonson,Check,1665,Check payment,0.00,2208.83,-91878.37,William Jhonson,,No,Yes
+9,2025-06-15,William Jhonson,Check,1664,Check payment,0.00,4971.38,-89669.54,William Jhonson,,No,Yes
+10,2025-06-06,William Jhonson,Check,1663,Check payment,0.00,5814.00,-84698.16,William Jhonson,,No,Yes
+11,2025-06-04,William Jhonson,Check,1660,Check payment,0.00,5814.00,-78884.16,William Jhonson,,No,Yes
+12,2025-06-15,William Jhonson,Check,1869,Check payment,0.00,4571.00,-73070.16,William Jhonson,,No,Yes
+13,2025-06-03,William Jhonson,Check,1856,Check payment,0.00,6614.04,-68499.16,William Jhonson,,No,Yes
+14,2025-06-20,William Jhonson,Check,1654,Check payment,0.00,6614.04,-61885.12,William Jhonson,,No,Yes
+15,2025-06-02,William Jhonson,Check,16563,Check payment,0.00,6614.04,-55271.08,William Jhonson,,No,Yes
+16,2025-06-17,William Jhonson,Check,1862,Check payment,0.00,7457.04,-48657.04,William Jhonson,,No,Yes
+17,2025-06-07,William Jhonson,Check,16561,Check payment,0.00,7000.00,-41200.00,William Jhonson,,No,Yes
+18,2025-06-05,William Jhonson,Check,1849,Check payment,0.00,10000.00,-34200.00,William Jhonson,,No,Yes
+19,2025-06-17,William Jhonson,Check,1648,Check payment,0.00,7500.00,-24200.00,William Jhonson,,No,Yes
+20,2025-06-16,William Jhonson,Check,1847,Check payment,0.00,7500.00,-16700.00,William Jhonson,,No,Yes
+21,2025-06-21,William Jhonson,Check,1846,Check payment,0.00,9200.00,-9200.00,William Jhonson,,No,Yes
