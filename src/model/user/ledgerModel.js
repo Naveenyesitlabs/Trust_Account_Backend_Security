@@ -64,21 +64,18 @@ const fetchLedgers = async ({ page, limit, startDate, endDate, client_id }) => {
             values.push(offset, limit);
         }
 
-        // Wrap base query to add serial number using MySQL variable
+        // Use a window function instead of session variables for deterministic numbering.
         const finalQuery = `
             SELECT 
-                (@row_number := @row_number + 1) AS serial_number,
+                ROW_NUMBER() OVER (ORDER BY transaction_date ASC) + ? AS serial_number,
                 id, transaction_date, payor_payee, transaction_method, check_number, purpose, deposit, disbursement, running_balance, notes, is_reconcile_to_journal
             FROM (
                 ${baseQuery}
             ) AS filtered_docs
         `;
 
-        // Initialize row number variable in MySQL
-        await dbConn.query("SET @row_number := ?", [offset]);
-
         // Execute the final query
-        const [rows] = await dbConn.query(finalQuery, values);
+        const [rows] = await dbConn.query(finalQuery, [offset, ...values]);
         return rows;
     } catch (error) {
         // Log and return false if an error occurs

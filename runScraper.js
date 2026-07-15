@@ -44,11 +44,18 @@ const path = require('path');
 const fs = require('fs');
 
 function runScraper() {
+  const scraperRoot = path.resolve(__dirname, 'wisefork-scraper-project');
   const scraperPath = path.join(
     __dirname,
     'wisefork-scraper-project',
     'run-scraper.js'
   );
+  const resolvedScraperPath = path.resolve(scraperPath);
+
+  if (!resolvedScraperPath.startsWith(scraperRoot + path.sep) || !fs.existsSync(resolvedScraperPath)) {
+    console.error(`[SCRAPER] Invalid scraper path: ${resolvedScraperPath}`);
+    return null;
+  }
 
   // Read scraper's own .env directly
   const envFilePath = path.join(__dirname, 'wisefork-scraper-project', '.env');
@@ -73,9 +80,11 @@ function runScraper() {
 
   const scraper = spawn(
     'node',
-    [scraperPath],
+    [resolvedScraperPath],
     {
-      cwd: path.join(__dirname, 'wisefork-scraper-project'),
+      cwd: scraperRoot,
+      shell: false,
+      windowsHide: true,
       env: {
         ...process.env,
         ...envVars

@@ -1,5 +1,6 @@
 const multer = require("multer");
 const path = require("path");
+const fs = require("fs");
 
 const allowedMimeTypes = [
   "application/pdf",
@@ -19,14 +20,20 @@ const allowedMimeTypes = [
 
 // Fallback check based on file extension
 const allowedExtensions = [".pdf", ".doc", ".docx", ".xls", ".xlsx", ".csv", ".jpeg", ".jpg", ".png", ".qbo", ".ofx"];
+const uploadsDir = path.resolve(__dirname, "../uploads");
+
+if (!fs.existsSync(uploadsDir)) {
+  fs.mkdirSync(uploadsDir, { recursive: true });
+}
 
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
-    cb(null, "src/uploads");
+    cb(null, uploadsDir);
   },
   filename: function (req, file, cb) {
-    const ext = path.extname(file.originalname).toLowerCase(); // Get original file extension
-    const fileName = Date.now() + "-" + Math.round(Math.random() * 1e9) + ext;
+    const safeOriginalName = path.basename(file.originalname || "upload");
+    const ext = path.extname(safeOriginalName).toLowerCase();
+    const fileName = `${Date.now()}-${Math.round(Math.random() * 1e9)}${ext}`;
     cb(null, fileName); // Set filename with extension
   },
 });
