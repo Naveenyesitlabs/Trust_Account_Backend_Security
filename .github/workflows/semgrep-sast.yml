@@ -1,0 +1,35 @@
+name: Semgrep SAST Scan
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  semgrep:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10
+
+      - name: Setup Python
+        uses: actions/setup-python@42375524e23c412d93fb67b49958b491fce71c38
+        with:
+          python-version: "3.11"
+
+      - name: Install Semgrep
+        run: pip install semgrep
+
+      - name: Create reports folder
+        run: mkdir -p reports/semgrep
+
+      - name: Run Semgrep
+        run: semgrep scan --config "p/default" . --json --output reports/semgrep/semgrep-sast-report.json || true
+
+      - name: Upload report
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: semgrep-sast-report
+          path: reports/semgrep/semgrep-sast-report.json
