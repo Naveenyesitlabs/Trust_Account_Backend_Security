@@ -1698,7 +1698,8 @@ const pdfToImage = async (pdfPath, outputDir) => {
 
         const imagePaths = [];
         const poppler = new Poppler();
-        // nosemgrep: outputDir is application-controlled and page prefix is static.
+        // nosemgrep: javascript.lang.security.audit.path-traversal.path-join-resolve-traversal.path-join-resolve-traversal
+        // outputDir is application-controlled and page prefix is static.
         const outputPrefix = path.join(outputDir, "page");
 
         await fs.mkdir(outputDir, { recursive: true });
@@ -1717,9 +1718,11 @@ const pdfToImage = async (pdfPath, outputDir) => {
 
         let counter = 1;
         for (const generatedFile of generatedFiles) {
-            // nosemgrep: generated filenames come from controlled OCR output and stay within outputDir.
+            // nosemgrep: javascript.lang.security.audit.path-traversal.path-join-resolve-traversal.path-join-resolve-traversal
+            // generated filenames come from controlled OCR output and stay within outputDir.
             const rawImagePath = path.join(outputDir, generatedFile);
-            // nosemgrep: generated filenames are application-created and stay within outputDir.
+            // nosemgrep: javascript.lang.security.audit.path-traversal.path-join-resolve-traversal.path-join-resolve-traversal
+            // generated filenames are application-created and stay within outputDir.
             const finalImagePath = path.join(outputDir, `processed_${counter}.png`);
 
             await sharp(rawImagePath)

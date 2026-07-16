@@ -269,7 +269,8 @@ async function generatePDF(adminId, reports, month, year, type, headers) {
 
     try {
       const page = await browser.newPage();
-      // nosemgrep: HTML content is generated from escaped report values before rendering.
+      // nosemgrep: javascript.puppeteer.security.audit.puppeteer-setcontent-injection.puppeteer-setcontent-injection
+      // HTML content is generated from escaped report values before rendering.
       await page.setContent(html, { waitUntil: 'networkidle0' });
       await page.pdf({
         path: filePath,

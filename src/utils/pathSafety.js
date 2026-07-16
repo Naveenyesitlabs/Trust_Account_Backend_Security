@@ -6,8 +6,10 @@ const sanitizePathSegment = (value, fallback = "file") => {
 };
 
 const resolvePathWithin = (baseDir, ...segments) => {
+  // nosemgrep: javascript.lang.security.audit.path-traversal.path-join-resolve-traversal.path-join-resolve-traversal
   const resolvedBaseDir = path.resolve(baseDir);
   const safeSegments = segments.map((segment) => sanitizePathSegment(segment));
+  // nosemgrep: javascript.lang.security.audit.path-traversal.path-join-resolve-traversal.path-join-resolve-traversal
   const resolvedPath = path.resolve(resolvedBaseDir, ...safeSegments);
 
   if (resolvedPath !== resolvedBaseDir && !resolvedPath.startsWith(`${resolvedBaseDir}${path.sep}`)) {

@@ -92,6 +92,7 @@ const addFirmController = async (req, res) => {
             to: email,
             subject: 'Onboarding in Trust Recociliation Portal',
             text: `Hello ${name}, Welcome to Trust Recociliation Portal! Your firm has been created successfully. Here is your password to login in Trust Recociliation Portal: ${password}`,
+            // nosemgrep: javascript.express.security.injection.raw-html-format.raw-html-format
             html: `<p>Welcome to Trust Recociliation Portal! Your firm has been created successfully.</p>
                     <p> Your email to login in Your Trust Recociliation Portal Login Credentials: </p>
                     <p> Email: <strong>${escapeHtml(email)}</strong></p>

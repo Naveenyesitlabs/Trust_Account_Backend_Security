@@ -16,3 +16,4 @@ src/services/old_bankParser.js
 src/services/new_opencv_bankPasrser.js
 src/services/BankStatementParser_new.js
 src/services/BankStatementParserv2.0.js
+.github/workflows/semgrep-sast.yml

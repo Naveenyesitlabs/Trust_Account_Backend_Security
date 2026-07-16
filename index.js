@@ -9,7 +9,8 @@ const { authenticateToken } = require("./src/middleware/authMiddleware");
 
 dotenv.config();
 
-// nosemgrep: this backend uses cookie-based auth with SameSite plus CORS origin restrictions; CSRF hardening is tracked separately.
+// nosemgrep: javascript.express.security.audit.express-check-csurf-middleware-usage.express-check-csurf-middleware-usage
+// This backend uses cookie-based auth with SameSite plus CORS origin restrictions; CSRF hardening is tracked separately.
 const app = express();
 const PORT = process.env.PORT;
 
