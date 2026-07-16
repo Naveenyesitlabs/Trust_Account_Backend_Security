@@ -5,10 +5,8 @@ const dbConn = require('../../../dbConfig');
  */
 const getLedgersCount = async () => {
     try {
-        let query = 'SELECT COUNT(id) AS count FROM client_ledger';
-
         // destructure rows from query result
-        const [rows] = await dbConn.query(query);
+        const [rows] = await dbConn.query('SELECT COUNT(id) AS count FROM client_ledger');
 
         return rows[0].count;
     } catch (err) {

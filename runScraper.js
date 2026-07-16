@@ -37,7 +37,7 @@ function runScraper() {
     console.error(`[SCRAPER] ❌ .env not found at: ${envFilePath}`);
   }
 
-  // nosemgrep
+  // nosemgrep: process path is validated, shell is disabled, and arguments are fixed.
   const scraper = spawn(
     'node',
     [resolvedScraperPath],

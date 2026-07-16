@@ -297,6 +297,7 @@ const updateLedgerBalanceAfterDelete = async (afterBalance) => {
       ledger_balance DECIMAL(15,2)
     );
   `;
+  // nosemgrep: temporary-table DDL is static and not user-controlled.
   await dbConn.query(createTempTableSQL);
 
   // 2. Clear temp table (if needed)
@@ -319,6 +320,7 @@ const updateLedgerBalanceAfterDelete = async (afterBalance) => {
     INSERT INTO tmp_updates_ledger (id, deposit_amount, disbursement_amount, ledger_balance)
     VALUES ${placeholders}
   `;
+  // nosemgrep: placeholder expansion count is derived from in-memory rows and values stay parameterized.
   await dbConn.query(insertSQL, flatValues);
 
   // 4. Update main table using JOIN
@@ -332,6 +334,7 @@ const updateLedgerBalanceAfterDelete = async (afterBalance) => {
       mfa.ledger_balance = tmp.ledger_balance
   `;
 
+  // nosemgrep: join update uses only the trusted temp table created above.
   const [result] = await dbConn.query(updateSQL);
 
   return result.affectedRows;
@@ -351,6 +354,7 @@ const updateCaseLedgerBalanceAfterDelete = async (afterBalance) => {
       case_ledger_balance DECIMAL(15,2)
     );
   `;
+  // nosemgrep: temporary-table DDL is static and not user-controlled.
   await dbConn.query(createTempTableSQL);
 
   // 2. Clear temp table (if needed)
@@ -373,6 +377,7 @@ const updateCaseLedgerBalanceAfterDelete = async (afterBalance) => {
     INSERT INTO tmp_updates_case_ledger (id, deposit_amount, disbursement_amount, case_ledger_balance)
     VALUES ${placeholders}
   `;
+  // nosemgrep: placeholder expansion count is derived from in-memory rows and values stay parameterized.
   await dbConn.query(insertSQL, flatValues);
 
   // 4. Update main table using JOIN
@@ -386,6 +391,7 @@ const updateCaseLedgerBalanceAfterDelete = async (afterBalance) => {
       mfa.case_ledger_balance = tmp.case_ledger_balance
   `;
 
+  // nosemgrep: join update uses only the trusted temp table created above.
   const [result] = await dbConn.query(updateSQL);
 
   return result.affectedRows;

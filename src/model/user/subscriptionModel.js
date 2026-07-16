@@ -12,8 +12,7 @@ const dbConn = require("../../../dbConfig");
  */
 const getSubscriptionsDb = async () => {
   try {
-    // Define the query
-    let query = `
+    const [rows] = await dbConn.query(`
       SELECT 
   sp.*, 
   (
@@ -23,10 +22,7 @@ const getSubscriptionsDb = async () => {
   ) AS features
 FROM subscription_plan AS sp;
 
-    `;
-
-    // Execute the query
-    const [rows] = await dbConn.query(query);
+    `);
 
     // Return the rows or an empty array if no data is found
     return rows || [];

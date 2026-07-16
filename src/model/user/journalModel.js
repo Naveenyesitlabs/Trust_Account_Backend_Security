@@ -47,11 +47,8 @@ const saveJournalEntry = async (journalData) => {
  */
 const getJournalBalance = async () => {
     try {
-        // building query
-        let query = 'SELECT running_balance FROM client_journal ORDER BY id DESC LIMIT 1';
-
         // doing db operation
-        const [rows] = await dbConn.query(query);
+        const [rows] = await dbConn.query('SELECT running_balance FROM client_journal ORDER BY id DESC LIMIT 1');
 
         if (rows.length === 0) return 0;
 

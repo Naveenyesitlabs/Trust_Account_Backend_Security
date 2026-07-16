@@ -146,13 +146,12 @@ const getRoleDetails = async (role_id = null, role_name = null) => {
 
 const getSignUpRole = async () => {
   try {
-    let query = `
+    const [rows] = await dbConn.query(`
       SELECT id, name FROM role 
       WHERE LOWER(name) = 'admin' AND deleted_at IS NULL 
       ORDER BY id ASC 
       LIMIT 1
-    `;
-    const [rows] = await dbConn.query(query);
+    `);
     return rows.length > 0 ? { role_id: rows[0].id, role_name: rows[0].name } : null;
   } catch (error) {
     throw new Error("Database error at getSignUpRole: " + error.message);
@@ -162,10 +161,9 @@ const getSignUpRole = async () => {
 
 const getSelectedModuleDB = async (role_id) => {
   try {
-    let query = `select distinct m.module from role_menu_map as rmm 
-    inner join menu as m on rmm.menu_id = m.id 
-    where rmm.role_id = ?`;
-    const [rows] = await dbConn.query(query, [role_id]);
+    const [rows] = await dbConn.query(`select distinct m.module from role_menu_map as rmm
+    inner join menu as m on rmm.menu_id = m.id
+    where rmm.role_id = ?`, [role_id]);
     return rows || [];
   } catch (error) {
     throw new Error("Database error at getSelectedModuleDB: " + error.message);

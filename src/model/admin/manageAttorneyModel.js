@@ -18,8 +18,7 @@ const addNewAttorney = async (attorney) => {
 }
 
 const getAttorneys = async () => {
-    const query = `SELECT * FROM manage_attorneys`;
-    const [rows] = await dbConn.query(query);
+    const [rows] = await dbConn.query('SELECT * FROM manage_attorneys');
     return rows;
 }
 

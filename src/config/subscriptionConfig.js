@@ -41,8 +41,7 @@ const SUBSCRIPTION_PLAN = [
 const INIT_SUBSCRIPTION_PLAN = async () => {
   try {
     // Building query to check how many plans currently exist in the database
-    let query = 'select count(*) as count from subscription_plan';
-    const [rows] = await dbConn.query(query);
+    const [rows] = await dbConn.query('select count(*) as count from subscription_plan');
 
     // If there are no plans or fewer than the defined SUBSCRIPTION_PLAN array length, insert missing plans
     if (rows.length > 0 && (rows[0].count <= 0 || rows[0].count < SUBSCRIPTION_PLAN.length)) {
@@ -50,8 +49,7 @@ const INIT_SUBSCRIPTION_PLAN = async () => {
       console.log('Inserting default subscription plan...');
 
       // Fetch existing plans for comparison
-      let fetchQuery = 'select * from subscription_plan';
-      const [existing_plans] = await dbConn.query(fetchQuery);
+      const [existing_plans] = await dbConn.query('select * from subscription_plan');
 
       // Loop through all default subscription plans
       for (let i = 0; i < SUBSCRIPTION_PLAN.length; i++) {
@@ -93,18 +91,15 @@ const INIT_SUBSCRIPTION_PLAN = async () => {
         }
 
         // Insert new subscription plan into the database
-        let query = `insert into subscription_plan set ?`;
-        const [result] = await dbConn.query(query, [plan_db_data]);
+        const [result] = await dbConn.query('insert into subscription_plan set ?', [plan_db_data]);
 
         // If plan insertion was successful, insert its features
         if (result.affectedRows > 0) {
           const plan_id = result.insertId;
-          const featureInsertQuery = `insert into subscription_features set ?`;
-
           // Insert each feature belonging to the subscription plan
           for (const feature of SUBSCRIPTION_PLAN[i].subscription_features) {
             const subscription_features_db_data = { plan_id, feature };
-            await dbConn.query(featureInsertQuery, [subscription_features_db_data]);
+            await dbConn.query('insert into subscription_features set ?', [subscription_features_db_data]);
           }
 
           console.log(`${SUBSCRIPTION_PLAN[i].name} subscription plan inserted successfully...`);

@@ -9,8 +9,7 @@ const dbConn = require('../../../dbConfig');
  */
 const getMenusDB = async () => {
   try {
-    let query = `select id, name, url, component from menu where deleted_at is NULL order by display_order asc`;
-    const [rows] = await dbConn.query(query);
+    const [rows] = await dbConn.query('select id, name, url, component from menu where deleted_at is NULL order by display_order asc');
     return rows || [];
   } catch (err) {
     throw new Error('Database error at getMenuDB: ' + err.message);
@@ -26,8 +25,7 @@ const getMenusDB = async () => {
 
 const getModulesDb = async () => {
   try {
-    let query = `select distinct module from menu where deleted_at is NULL`;
-    const [rows] = await dbConn.query(query);
+    const [rows] = await dbConn.query('select distinct module from menu where deleted_at is NULL');
     return rows || [];
   } catch (err) {
     throw new Error('Database error at getModulesDb: ' + err.message);

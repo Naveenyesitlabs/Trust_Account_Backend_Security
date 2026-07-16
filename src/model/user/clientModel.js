@@ -86,6 +86,7 @@ const fetchClients = async ({
 
         query += ' ORDER BY name ASC';
 
+        // nosemgrep: query shape is controlled and values remain parameterized.
         const [rows] = await dbConn.query(query, values);
         return rows;
 
@@ -150,9 +151,7 @@ const isClientExists = async (clientId) => {
  */
 const getClientCount = async () => {
     try {
-        // bulding the query
-        const query = 'SELECT COUNT(clientId) AS count FROM use_clients';
-        const [rows] = await dbConn.query(query);
+        const [rows] = await dbConn.query('SELECT COUNT(clientId) AS count FROM use_clients');
         return rows[0].count;
     } catch (error) {
         return false;

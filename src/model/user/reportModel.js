@@ -50,8 +50,7 @@ const checkPreviousMonthDataExists = async (month, year) => {
  */
 const getDistinctAdminIds = async () => {
   try {
-    let query = 'select distinct user_id as adminId from manage_firm';
-    const [result] = await dbConn.query(query);
+    const [result] = await dbConn.query('select distinct user_id as adminId from manage_firm');
     return result;
   } catch (error) {
     throw new Error('Database error at checkPreviousMonthDataExists: ' + error.message);

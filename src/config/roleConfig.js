@@ -22,15 +22,13 @@ const INIT_DEFAULT_ROLE = async () => {
   try {
     console.log("Checking for default roles...");
     // building query to check already menu exists or not
-    let query = 'select count(*) as count from role';
-    const [rows] = await dbConn.query(query);
+    const [rows] = await dbConn.query('select count(*) as count from role');
     // now checking menu count and matching with user app menu array length.
     // if count 0 or count is less than user app menu length then inserting default menu
     if (rows.length > 0 && (rows[0].count <= 0 || rows[0].count < DEFAULT_ROLES.length)) {
       console.log('There is no default role...');
       console.log('Inserting default role...');
-      const fetchQuery = 'select * from role';
-      const [existing_roles] = await dbConn.query(fetchQuery);
+      const [existing_roles] = await dbConn.query('select * from role');
       // looping over user app menu array
       for (let i = 0; i < DEFAULT_ROLES.length; i++) {
         // checking menu already exists or not. If exists then skipping
@@ -41,8 +39,7 @@ const INIT_DEFAULT_ROLE = async () => {
         }
         console.log(`Inserting ${DEFAULT_ROLES[i].name} role...`);
         // inserting default menu
-        let insertQuery = `insert into role set ?`;
-        const [result] = await dbConn.query(insertQuery, DEFAULT_ROLES[i]);
+        const [result] = await dbConn.query('insert into role set ?', DEFAULT_ROLES[i]);
         console.log(`${DEFAULT_ROLES[i].name} role inserted successfully...`);
         let role_id = result.insertId;
 

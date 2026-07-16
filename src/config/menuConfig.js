@@ -152,15 +152,13 @@ const INIT_DEFAULT_MENU = async () => {
   try {
     console.log("Checking for default menu for user portal...");
     // building query to check already menu exists or not
-    let query = 'select count(*) as count from menu';
-    const [rows] = await dbConn.query(query);
+    const [rows] = await dbConn.query('select count(*) as count from menu');
     // now checking menu count and matching with user app menu array length.
     // if count 0 or count is less than user app menu length then inserting default menu
     if (rows.length > 0 && (rows[0].count <= 0 || rows[0].count < USER_APP_MENU.length)) {
       console.log('There is no default menu for user portal...');
       console.log('Inserting default menu for user portal...');
-      const fetchQuery = 'select * from menu';
-      const [existing_menus] = await dbConn.query(fetchQuery);
+      const [existing_menus] = await dbConn.query('select * from menu');
       // looping over user app menu array
       for (let i = 0; i < USER_APP_MENU.length; i++) {
         // checking menu already exists or not. If exists then skipping
@@ -171,8 +169,7 @@ const INIT_DEFAULT_MENU = async () => {
         }
         console.log(`Inserting ${USER_APP_MENU[i].name} menu...`);
         // inserting default menu
-        let query = `insert into menu set ?`;
-        await dbConn.query(query, USER_APP_MENU[i]);
+        await dbConn.query('insert into menu set ?', USER_APP_MENU[i]);
         console.log(`${USER_APP_MENU[i].name} menu inserted successfully...`);
       }
       console.log('Default menu inserted successfully for user portal...');

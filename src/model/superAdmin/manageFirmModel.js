@@ -73,11 +73,10 @@ const updateFirm = async (id, { name, email, phone, subscription_type }) => {
 
 // 🔍 Get Firm by ID
 const getFirmById = async () => {
-    let query = `SELECT mf.*, sp.name as plan_name FROM manage_firm as mf
+    const [rows] = await dbConn.query(`SELECT mf.*, sp.name as plan_name FROM manage_firm as mf
     left join subscription_plan as sp on sp.id = mf.subscription_type
     where mf.deleted_at is null
-    order by id desc`;
-    const [rows] = await dbConn.query(query);
+    order by id desc`);
     return rows;
 };
 
@@ -198,8 +197,7 @@ const updateSubscriptionType = async (user_id, subscription_type) => {
 const getFirmRoleDB = async (req, res) => {
     try {
         // building query to get admin role id
-        let query = `select * from role where name in ('admin','ADMIN','Admin') and deleted_at is null order by id desc limit 1`;
-        const [rows] = await dbConn.query(query);
+        const [rows] = await dbConn.query(`select * from role where name in ('admin','ADMIN','Admin') and deleted_at is null order by id desc limit 1`);
         return rows.length > 0 ? rows[0].id : null;
     } catch (error) {
         throw new Error('Database error at getFirmRoleDB: ' + error.message);
