@@ -10,6 +10,7 @@ const { createJournal } = require("./journalController");
 const { proccessOcr } = require("../../services/BankStatementParser");
 const addSerialNoComman = require("../../utils/addSerialNoComman");
 const { getAdminId } = require("../../model/admin/userManagementModel");
+const { sanitizePathSegment } = require("../../utils/pathSafety");
 
 
 // Validation schema for client trust entry payload
@@ -64,7 +65,8 @@ const clientTrustEntry = async (req, res) => {
         const logged_in_user_id = req?.user?.userid;
         const adminId = req?.user?.role.toLowerCase() === "admin" ? req?.user?.userid : await getAdminId(logged_in_user_id);
         if (!file) return respond(res, false, HTTP_STATUS_CODE.BAD_REQUEST, "No file uploaded.");
-        const filePath = path.join('uploads', file.filename);
+        const safeFileName = sanitizePathSegment(file.filename);
+        const filePath = `uploads/${safeFileName}`;
 
         const { bank_name, bank_info } = req.body;
 

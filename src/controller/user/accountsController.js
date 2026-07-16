@@ -2,6 +2,7 @@ const fs = require('fs');
 const path = require('path');
 const { extractPdfData, extractExcelData, extractImageData, extractOfxData } = require('../../utils/extractData');
 const { createBankStatement, getBankStatements } = require('../../model/user/accountsModel');
+const { resolvePathWithin, sanitizePathSegment } = require('../../utils/pathSafety');
 
 
 
@@ -14,7 +15,9 @@ const createBankStatementController = async (req, res) => {
             return res.status(400).json({ message: 'No file uploaded' });
         }
 
-        const filePath = path.resolve('src/uploads', req.file.filename);
+        const safeFileName = sanitizePathSegment(req.file.filename);
+        // nosemgrep: uploaded filename is normalized and constrained to the uploads directory.
+        const filePath = resolvePathWithin(path.join(process.cwd(), 'src/uploads'), safeFileName);
         const fileExt = path.extname(req.file.originalname).toLowerCase();
 
         let parsedData;

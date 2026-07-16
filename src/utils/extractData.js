@@ -4,12 +4,14 @@ const pdf2img = require("node-poppler");
 const Tesseract = require("tesseract.js");
 const xlsx = require("xlsx");
 const { parse: parseOfx } = require("ofx-js");
+const { resolvePathWithin, sanitizePathSegment } = require("./pathSafety");
 
 
 const extractPdfData = async (filePath) => {
     try {
 
-        const outputDir = path.join(__dirname, "temp_images");
+        // nosemgrep: temp_images is a fixed application-owned directory.
+        const outputDir = resolvePathWithin(__dirname, "temp_images");
         if (!fs.existsSync(outputDir)) fs.mkdirSync(outputDir, { recursive: true });
 
         const opts = {
@@ -24,7 +26,7 @@ const extractPdfData = async (filePath) => {
         // Get all images from the temp folder
         const images = fs.readdirSync(outputDir)
             .filter(file => file.startsWith("bank_statement") && file.endsWith(".png"))
-            .map(file => path.join(outputDir, file));
+            .map(file => resolvePathWithin(outputDir, sanitizePathSegment(file)));
 
         if (images.length === 0) throw new Error("No images found after conversion!");
 

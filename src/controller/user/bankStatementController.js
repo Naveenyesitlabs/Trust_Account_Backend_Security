@@ -6,6 +6,7 @@ const { getAdminId, getLoggedInUserInfo } = require("../../model/admin/userManag
 const { insertBankStatements, getBankStatements, insertBankTransaction, getFirmName, getLastBankStatement, getLastBankStatementBalance } = require("../../model/user/bankStatementsModel");
 const { getJournalBalance, addJurnalEntry, checkJournalExist, getBankChargeLedgerBalance, removeFromOutstanding, isLedgerClientExists, updateJournalReconciliatioBankStatementDB, testFetchJournal } = require("../../model/admin/journalEntryModel");
 const addSerialNoComman = require("../../utils/addSerialNoComman");
+const { resolvePathWithin, sanitizePathSegment } = require("../../utils/pathSafety");
 
 
 /**
@@ -68,7 +69,9 @@ const uploadBankStatement = async (req, res) => {
     const { bank_name, bank_info } = req.body;
     const logged_in_user_info = await getLoggedInUserInfo(logged_in_user_id);
     if (!file) return respond(res, false, HTTP_STATUS_CODE.BAD_REQUEST, "No file uploaded.");
-    const filePath = path.resolve('src/uploads', file.filename);
+    const safeFileName = sanitizePathSegment(file.filename);
+    // nosemgrep: uploaded filename is normalized and constrained to the uploads directory.
+    const filePath = resolvePathWithin(path.join(process.cwd(), 'src/uploads'), safeFileName);
 
     // process OCR
     const parsedData = await proccessOcr(filePath, file.mimetype);
@@ -117,7 +120,7 @@ const uploadBankStatement = async (req, res) => {
       account_end_date: periodTo.toLocaleDateString('en-CA') || null,
       ending_balance: parsedData.endingBalance,
       account_details: bank_info,
-      upload_document: path.join('src/uploads', file.filename),
+      upload_document: `src/uploads/${safeFileName}`,
       // account_start_date: accountData?.accountStartDate || null,
       // account_end_date: accountData?.accountEndDate || null,
       account_description: accountData?.accountDescription || null,

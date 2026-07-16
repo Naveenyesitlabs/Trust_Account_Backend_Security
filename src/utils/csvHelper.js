@@ -2,6 +2,7 @@ const fs = require('fs');
 const path = require('path');
 const { stringify } = require('csv-stringify');
 const puppeteer = require('puppeteer');
+const { escapeHtml, resolvePathWithin, sanitizePathSegment } = require('./pathSafety');
 
 
 async function generateCSV(adminId, reports, month, year, type, headers) {
@@ -12,17 +13,20 @@ async function generateCSV(adminId, reports, month, year, type, headers) {
     }
 
     // Create folder structure if it doesn't exist
-    const baseDir = path.join(__dirname, '../downloads', type);
+    const safeType = sanitizePathSegment(type, 'report');
+    // nosemgrep: report type is normalized before building a directory path.
+    const baseDir = resolvePathWithin(path.join(__dirname, '../downloads'), safeType);
     if (!fs.existsSync(baseDir)) {
       fs.mkdirSync(baseDir, { recursive: true });
     }
 
     // Define the file path
-    const filename = `${month}_${year}_${adminId}.csv`;
-    const filePath = path.join(baseDir, filename);
+    const filename = sanitizePathSegment(`${month}_${year}_${adminId}.csv`, 'report.csv');
+    // nosemgrep: generated filename is normalized and constrained to the report directory.
+    const filePath = resolvePathWithin(baseDir, filename);
 
     // Public-facing URL for download
-    const relativeUrlPath = path.posix.join('downloads', type, filename); // ensures forward slashes
+    const relativeUrlPath = path.posix.join('downloads', safeType, filename); // ensures forward slashes
     // const fileUrl = `${baseUrl}/${relativeUrlPath}`;
 
     // Map headers to CSV format (convert snake_case to Title Case)
@@ -172,7 +176,7 @@ const buildReportHtml = (reports, headers, reportName) => {
                 max-width: 150px;
                 overflow-wrap: break-word;
               ">
-                ${formatHeader(key)}
+                ${escapeHtml(formatHeader(key))}
               </th>
             `).join('')}
           </tr>
@@ -206,7 +210,7 @@ const buildReportHtml = (reports, headers, reportName) => {
               overflow-wrap: break-word;
               word-break: break-word;
               font-size: ${fontSize};
-            ">${cellText}</td>`;
+            ">${escapeHtml(cellText)}</td>`;
   }).join('')}
             </tr>
           `).join('')}
@@ -224,23 +228,26 @@ async function generatePDF(adminId, reports, month, year, type, headers) {
     }
 
     // Create folder structure if it doesn't exist
-    const baseDir = path.join(__dirname, '../downloads', type);
+    const safeType = sanitizePathSegment(type, 'report');
+    // nosemgrep: report type is normalized before building a directory path.
+    const baseDir = resolvePathWithin(path.join(__dirname, '../downloads'), safeType);
     if (!fs.existsSync(baseDir)) {
       fs.mkdirSync(baseDir, { recursive: true });
     }
 
-    const filename = `${month}_${year}_${adminId}.pdf`;
-    const filePath = path.join(baseDir, filename);
-    const relativeUrlPath = path.posix.join('downloads', type, filename);
+    const filename = sanitizePathSegment(`${month}_${year}_${adminId}.pdf`, 'report.pdf');
+    // nosemgrep: generated filename is normalized and constrained to the report directory.
+    const filePath = resolvePathWithin(baseDir, filename);
+    const relativeUrlPath = path.posix.join('downloads', safeType, filename);
 
     // Generate HTML using buildReportHtml
-    const htmlContent = buildReportHtml(reports, headers, type.toUpperCase());
+    const htmlContent = buildReportHtml(reports, headers, safeType.toUpperCase());
 
     const html = `
       <html>
       <head>
         <meta charset="utf-8">
-        <title>${type.toUpperCase().replace('_', ' ')} Report</title>
+        <title>${escapeHtml(safeType.toUpperCase().replace('_', ' '))} Report</title>
         <style>
           body { margin: 0; padding: 0; font-family: Arial, sans-serif; font-size: 10px; }
           h2 { font-size: 18px; margin: 0 0 10px 0; }
@@ -262,6 +269,7 @@ async function generatePDF(adminId, reports, month, year, type, headers) {
 
     try {
       const page = await browser.newPage();
+      // nosemgrep: HTML content is generated from escaped report values before rendering.
       await page.setContent(html, { waitUntil: 'networkidle0' });
       await page.pdf({
         path: filePath,
