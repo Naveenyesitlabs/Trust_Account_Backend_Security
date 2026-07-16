@@ -28,8 +28,45 @@ jobs:
       - name: Run Semgrep
         run: semgrep scan --config "p/default" . --json --output reports/semgrep/semgrep-sast-report.json || true
 
+      - name: Build Semgrep Summary
+        shell: python
+        run: |
+          import json
+          from pathlib import Path
+
+          report_path = Path("reports/semgrep/semgrep-sast-report.json")
+          summary_path = Path("reports/semgrep/semgrep-sast-summary.txt")
+
+          if not report_path.exists():
+              summary_path.write_text("Semgrep report file not found.\n", encoding="utf-8")
+              raise SystemExit(0)
+
+          data = json.loads(report_path.read_text(encoding="utf-8"))
+          results = data.get("results", [])
+
+          lines = [f"Total findings: {len(results)}", ""]
+          for item in results:
+              path = item.get("path", "unknown")
+              start = item.get("start", {})
+              line = start.get("line", "?")
+              check_id = item.get("check_id", "unknown")
+              message = item.get("extra", {}).get("message", "").strip().replace("\n", " ")
+              severity = item.get("extra", {}).get("severity", "UNKNOWN")
+              lines.append(f"{severity} | {check_id} | {path}:{line}")
+              if message:
+                  lines.append(f"  {message}")
+              lines.append("")
+
+          if len(lines) == 2:
+              lines.append("No findings.")
+
+          summary_path.write_text("\n".join(lines), encoding="utf-8")
+
+      - name: Print Semgrep Summary
+        run: cat reports/semgrep/semgrep-sast-summary.txt
+
       - name: Upload report
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         with:
           name: semgrep-sast-report
-          path: reports/semgrep/semgrep-sast-report.json
+          path: reports/semgrep/
