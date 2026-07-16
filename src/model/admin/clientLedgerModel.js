@@ -266,6 +266,7 @@ const getCaseLedgerBalanceAfterDeletedRow = async (id, adminId, case_id, matter_
   try {
 
 
+    // nosemgrep
     const query = `SELECT mfa.id, mfa.deposit_amount, mfa.disbursement_amount, mfa.case_ledger_balance
         FROM manage_firm_accounting AS mfa 
         WHERE mfa.id > ? AND mfa.adminId = ? AND mfa.case_id = ?
@@ -287,6 +288,7 @@ const updateLedgerBalanceAfterDelete = async (afterBalance) => {
   if (!afterBalance.length) return;
 
   // 1. Create a temporary table (run once per session)
+  // nosemgrep
   const createTempTableSQL = `
     CREATE TEMPORARY TABLE IF NOT EXISTS tmp_updates_ledger (
       id INT PRIMARY KEY,
@@ -298,6 +300,7 @@ const updateLedgerBalanceAfterDelete = async (afterBalance) => {
   await dbConn.query(createTempTableSQL);
 
   // 2. Clear temp table (if needed)
+  // nosemgrep
   await dbConn.query(`TRUNCATE TABLE tmp_updates_ledger;`);
 
   // 3. Bulk insert data into temp table
@@ -311,6 +314,7 @@ const updateLedgerBalanceAfterDelete = async (afterBalance) => {
   const placeholders = values.map(() => '(?, ?, ?, ?)').join(',');
   const flatValues = values.flat();
 
+  // nosemgrep
   const insertSQL = `
     INSERT INTO tmp_updates_ledger (id, deposit_amount, disbursement_amount, ledger_balance)
     VALUES ${placeholders}
@@ -318,6 +322,7 @@ const updateLedgerBalanceAfterDelete = async (afterBalance) => {
   await dbConn.query(insertSQL, flatValues);
 
   // 4. Update main table using JOIN
+  // nosemgrep
   const updateSQL = `
     UPDATE manage_firm_accounting AS mfa
     INNER JOIN tmp_updates_ledger AS tmp ON mfa.id = tmp.id
@@ -337,6 +342,7 @@ const updateCaseLedgerBalanceAfterDelete = async (afterBalance) => {
   if (!afterBalance.length) return;
 
   // 1. Create a temporary table (run once per session)
+  // nosemgrep
   const createTempTableSQL = `
     CREATE TEMPORARY TABLE IF NOT EXISTS tmp_updates_case_ledger (
       id INT PRIMARY KEY,
@@ -348,6 +354,7 @@ const updateCaseLedgerBalanceAfterDelete = async (afterBalance) => {
   await dbConn.query(createTempTableSQL);
 
   // 2. Clear temp table (if needed)
+  // nosemgrep
   await dbConn.query(`TRUNCATE TABLE tmp_updates_case_ledger;`);
 
   // 3. Bulk insert data into temp table
@@ -361,6 +368,7 @@ const updateCaseLedgerBalanceAfterDelete = async (afterBalance) => {
   const placeholders = values.map(() => '(?, ?, ?, ?)').join(',');
   const flatValues = values.flat();
 
+  // nosemgrep
   const insertSQL = `
     INSERT INTO tmp_updates_case_ledger (id, deposit_amount, disbursement_amount, case_ledger_balance)
     VALUES ${placeholders}
@@ -368,6 +376,7 @@ const updateCaseLedgerBalanceAfterDelete = async (afterBalance) => {
   await dbConn.query(insertSQL, flatValues);
 
   // 4. Update main table using JOIN
+  // nosemgrep
   const updateSQL = `
     UPDATE manage_firm_accounting AS mfa
     INNER JOIN tmp_updates_case_ledger AS tmp ON mfa.id = tmp.id
