@@ -271,6 +271,8 @@ async function generatePDF(adminId, reports, month, year, type, headers) {
       const page = await browser.newPage();
       const tempHtmlPath = resolvePathWithin(baseDir, `${filename}.html`);
       fs.writeFileSync(tempHtmlPath, html, 'utf8');
+      // nosemgrep: javascript.puppeteer.security.audit.puppeteer-goto-injection.puppeteer-goto-injection
+      // The target is a locally generated sanitized file path, not user-supplied remote content.
       await page.goto(`file:///${tempHtmlPath.replace(/\\/g, '/')}`, { waitUntil: 'networkidle0' });
       await page.pdf({
         path: filePath,

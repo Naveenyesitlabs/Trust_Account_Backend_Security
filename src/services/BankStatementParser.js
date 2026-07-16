@@ -1699,16 +1699,16 @@ const pdfToImage = async (pdfPath, outputDir) => {
 
         const imagePaths = [];
         const poppler = new Poppler();
-        const safeOutputDir = path.resolve(outputDir);
+        const safeOutputDir = path.resolve(__dirname, '../../src/uploads/pdfToImages');
         const outputPrefix = resolvePathWithin(safeOutputDir, "page");
 
-        await fs.mkdir(outputDir, { recursive: true });
+        await fs.mkdir(safeOutputDir, { recursive: true });
         await poppler.pdfToCairo(pdfPath, outputPrefix, {
             pngFile: true,
             resolutionXYAxis: 300
         });
 
-        const generatedFiles = (await fs.readdir(outputDir))
+        const generatedFiles = (await fs.readdir(safeOutputDir))
             .filter((file) => file.startsWith("page") && file.toLowerCase().endsWith(".png"))
             .sort((a, b) => {
                 const aNumber = Number((a.match(/(\d+)/) || [0, 0])[1]);
