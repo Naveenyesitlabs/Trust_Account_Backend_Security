@@ -7,6 +7,7 @@ const fs = require('fs');
 const path = require('path');
 const bankConfigs = require('../config/bankConfigs');
 const { respond, HTTP_STATUS_CODE, extractSection, countMonths, cleanDescription } = require('../utils/reponseHelper');
+const { resolvePathWithin, sanitizePathSegment } = require('../utils/pathSafety');
 
 // define logs directory
 const logsDir = path.join(__dirname, '../../src/logs');
@@ -1698,9 +1699,8 @@ const pdfToImage = async (pdfPath, outputDir) => {
 
         const imagePaths = [];
         const poppler = new Poppler();
-        // nosemgrep: javascript.lang.security.audit.path-traversal.path-join-resolve-traversal.path-join-resolve-traversal
-        // outputDir is application-controlled and page prefix is static.
-        const outputPrefix = path.join(outputDir, "page");
+        const safeOutputDir = path.resolve(outputDir);
+        const outputPrefix = resolvePathWithin(safeOutputDir, "page");
 
         await fs.mkdir(outputDir, { recursive: true });
         await poppler.pdfToCairo(pdfPath, outputPrefix, {
@@ -1718,12 +1718,8 @@ const pdfToImage = async (pdfPath, outputDir) => {
 
         let counter = 1;
         for (const generatedFile of generatedFiles) {
-            // nosemgrep: javascript.lang.security.audit.path-traversal.path-join-resolve-traversal.path-join-resolve-traversal
-            // generated filenames come from controlled OCR output and stay within outputDir.
-            const rawImagePath = path.join(outputDir, generatedFile);
-            // nosemgrep: javascript.lang.security.audit.path-traversal.path-join-resolve-traversal.path-join-resolve-traversal
-            // generated filenames are application-created and stay within outputDir.
-            const finalImagePath = path.join(outputDir, `processed_${counter}.png`);
+            const rawImagePath = resolvePathWithin(safeOutputDir, sanitizePathSegment(generatedFile));
+            const finalImagePath = resolvePathWithin(safeOutputDir, `processed_${counter}.png`);
 
             await sharp(rawImagePath)
                 .grayscale()

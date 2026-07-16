@@ -1,8 +1,8 @@
 const { sendTrustEmail } = require('./emailApi');
 
 const sendEmail = async (mailOptions, retries) => {
-
-    await sendTrustEmail(mailOptions?.to, mailOptions?.subject, mailOptions?.html);
+    const message = mailOptions?.html || mailOptions?.text || '';
+    await sendTrustEmail(mailOptions?.to, mailOptions?.subject, message);
 };
 
 

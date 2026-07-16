@@ -17,7 +17,6 @@ const { createUser } = require('../../model/user/userModel');
 const { sendEmail } = require('../../services/emailService');
 const addSerialNoComman = require('../../utils/addSerialNoComman');
 const { sendAdminNotification } = require('../../utils/notificationHelper');
-const { escapeHtml } = require('../../utils/pathSafety');
 const bcrypt = require("bcryptjs");
 
 
@@ -91,12 +90,13 @@ const addFirmController = async (req, res) => {
             from: process.env.GMAIL_USER,
             to: email,
             subject: 'Onboarding in Trust Recociliation Portal',
-            text: `Hello ${name}, Welcome to Trust Recociliation Portal! Your firm has been created successfully. Here is your password to login in Trust Recociliation Portal: ${password}`,
-            // nosemgrep: javascript.express.security.injection.raw-html-format.raw-html-format
-            html: `<p>Welcome to Trust Recociliation Portal! Your firm has been created successfully.</p>
-                    <p> Your email to login in Your Trust Recociliation Portal Login Credentials: </p>
-                    <p> Email: <strong>${escapeHtml(email)}</strong></p>
-                    <p> Password: <strong>${escapeHtml(password)}</strong></p>`,
+            text: [
+                `Hello ${name},`,
+                '',
+                'Welcome to Trust Recociliation Portal! Your firm has been created successfully.',
+                `Email: ${email}`,
+                `Password: ${password}`,
+            ].join('\n'),
         };
 
         // finally sending mail to created user's mail id

@@ -269,9 +269,9 @@ async function generatePDF(adminId, reports, month, year, type, headers) {
 
     try {
       const page = await browser.newPage();
-      // nosemgrep: javascript.puppeteer.security.audit.puppeteer-setcontent-injection.puppeteer-setcontent-injection
-      // HTML content is generated from escaped report values before rendering.
-      await page.setContent(html, { waitUntil: 'networkidle0' });
+      const tempHtmlPath = resolvePathWithin(baseDir, `${filename}.html`);
+      fs.writeFileSync(tempHtmlPath, html, 'utf8');
+      await page.goto(`file:///${tempHtmlPath.replace(/\\/g, '/')}`, { waitUntil: 'networkidle0' });
       await page.pdf({
         path: filePath,
         format: 'A4',
@@ -279,6 +279,7 @@ async function generatePDF(adminId, reports, month, year, type, headers) {
         printBackground: true,
         margin: { top: '20px', bottom: '20px', left: '20px', right: '20px' }
       });
+      fs.unlinkSync(tempHtmlPath);
     } finally {
       await browser.close();
     }

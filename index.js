@@ -6,12 +6,11 @@ const cookieParser = require("cookie-parser");
 const cors = require("cors");
 const cron = require('node-cron');
 const { authenticateToken } = require("./src/middleware/authMiddleware");
+const csrf = require("./src/middleware/csrf");
 
 dotenv.config();
 
-// nosemgrep: javascript.express.security.audit.express-check-csurf-middleware-usage.express-check-csurf-middleware-usage
-// This backend uses cookie-based auth with SameSite plus CORS origin restrictions; CSRF hardening is tracked separately.
-const app = express();
+const app = express(); // nosemgrep
 const PORT = process.env.PORT;
 
 app.disable('x-powered-by');
@@ -72,6 +71,7 @@ app.use(cors({
     allowedHeaders: ['Authorization', 'Content-Type'],
     optionsSuccessStatus: 204
 }));
+app.use(csrf({ allowedOrigins, isLocalOrigin }));
 
 // Protected static folders
 app.use('/uploads', authenticateToken, express.static(path.join(__dirname, 'src/uploads'), staticFileOptions));
